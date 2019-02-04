@@ -9,6 +9,7 @@ class sexyDealer {
     userList = [];
     lastPlayerId = null;
     isTrue = true;
+    passAmount = 0;
 
     constructor(playerAmount) {
         this.leftAmount = playerAmount;
@@ -110,6 +111,31 @@ class sexyDealer {
             console.error("质疑者身份非法，质疑无效");
         }
     };
+    handlePass = (pid) => {
+        let status = false;
+        let name = "";
+        for (let i = 0; i < this.userList.length; i+=1) {
+            if (this.userList[i].id === pid &&
+                pid !== this.lastPlayerId) {
+                status = true;
+                name = this.userList[i].name;
+            }
+        }
+
+        if (status) {
+            this.passAmount = this.passAmount + 1;
+            console.log(`${name}选择Pass`);
+
+            if (this.passAmount >= this.userList.length-1) {
+                console.log("所有用户均选择Pass，桌上的牌将清空");
+                while (table.cards.length > 0) {
+                    table.cards.pop();
+                }
+            }
+        } else {
+            console.error("不允许当前用户Pass");
+        }
+    };
     deal = () => {
         this.shuffle();
 
@@ -130,6 +156,10 @@ class sexyDealer {
     };
 }
 
+function parse(str) {
+    return parseInt(str.replace(/\w/, ""), 10);
+}
+
 class Player {
     id = 0;
     name = "";
@@ -147,6 +177,7 @@ class Player {
     showCards = () => console.log(`${this.name}当前的余牌: `, this.cards);
     getCards = (dealer) => {
         this.cards = dealer.deal();
+        this.cards.sort((a, b) => parse(a)-parse(b));
         this.showCards();
     };
     play = (fact, statement, dealer) => {
@@ -177,6 +208,6 @@ class Player {
         this.showCards();
     };
     pass = (dealer) => {
-
+        dealer.handlePass(this.id);
     };
 }
