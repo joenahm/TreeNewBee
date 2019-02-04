@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>吹牛逼测试网站</title>
+</head>
+<body>
+    <h3>TreeNewBee纸牌游戏简介：</h3>
+    <pre>
+        这是一款多人纸牌游戏，游戏规则是：
+        将一副扑克牌，近似分为等份。
+        一人随意出牌，但不展示出的是什么，然后声称自己出了什么，可真可假。
+        其余玩家可有三种选择：
+            a. 认同上一个玩家然后跟相同的牌数张（可真可假）
+            b. 认同上一个玩家但是不出牌
+            c. 质疑上一个玩家
+        如果别人的质疑正确（也就是说出的牌确实不和自己说的一样），则当前玩家拿走桌上所有的牌。
+        否则质疑的人拿走桌上所有的牌。
+        手中先无牌者胜。
+    </pre>
+    <b>现在要实现的是，Pass</b>请看命令行输出...
+</body>
+<script src="main.js"></script>
+<script>
+    const dealer = new sexyDealer(2);
+
+    const p1 = new Player(1, "老狗", dealer);
+    p1.showInfo();
+    p1.getCards(dealer);
+
+    const p2 = new Player(2, "教主", dealer);
+    p2.showInfo();
+    p2.getCards(dealer);
+</script>
+</html>
