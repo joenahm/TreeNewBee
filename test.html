@@ -3,22 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <title>吹牛逼测试网站</title>
+    <style>
+        #myCards {
+            padding: 40px;
+            position: absolute;
+            bottom: 0;
+        }
+        #statementSelector {
+            width: 250px;
+            padding: 10px;
+            margin-top: 30px;
+            border: 1px #ccc solid;
+            border-radius: 10px;
+        }
+        #statementSelector ul li {
+            cursor: pointer;
+            margin: 5px;
+        }
+        #statementSelector ul li:hover {
+            font-weight: bold;
+            text-decoration: underline;
+            background: #f5f5f5;
+        }
+        .card {
+            width: 50px;
+            height: 80px;
+            border: 1px #555 solid;
+            padding: 5px;
+            border-radius: 4px;
+            float: left;
+            background: #fff;
+            margin-left: -20px;
+        }
+        .selected {
+            margin-top: -10px;
+        }
+    </style>
 </head>
 <body>
-    <h3>TreeNewBee纸牌游戏简介：</h3>
-    <pre>
-        这是一款多人纸牌游戏，游戏规则是：
-        将一副扑克牌，近似分为等份。
-        一人随意出牌，但不展示出的是什么，然后声称自己出了什么，可真可假。
-        其余玩家可有三种选择：
-            a. 认同上一个玩家然后跟相同的牌数张（可真可假）
-            b. 认同上一个玩家但是不出牌
-            c. 质疑上一个玩家
-        如果别人的质疑正确（也就是说出的牌确实不和自己说的一样），则当前玩家拿走桌上所有的牌。
-        否则质疑的人拿走桌上所有的牌。
-        手中先无牌者胜。
-    </pre>
-    <b>现在要实现的是，牌排序</b>请看命令行输出...
+    <h3>树新蜂纸牌游戏</h3>
+    <div id="myCards">
+        <!--牌将会作为子节点出现这这里-->
+    </div>
+
+    <div id="userInfo">
+        <!--玩家信息将会出现在这里-->
+    </div>
+
+    <div id="statementSelector" style="display: none">
+        <!--从这里选择声称出了什么牌-->
+        请选择你要声称你出的是什么：
+        <ul>
+            <li>A</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+            <li>10</li>
+            <li>J</li>
+            <li>Q</li>
+            <li>K</li>
+            <li>JOKER</li>
+        </ul>
+        <button style="display: none">出牌</button>
+    </div>
 </body>
 <script src="main.js"></script>
 <script>
@@ -27,9 +79,9 @@
     const p1 = new Player(1, "老狗", dealer);
     p1.showInfo();
     p1.getCards(dealer);
+    p1.showCards();
 
     const p2 = new Player(2, "教主", dealer);
-    p2.showInfo();
     p2.getCards(dealer);
 </script>
 </html>

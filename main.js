@@ -76,7 +76,7 @@ class sexyDealer {
                 }
             }
         } else {
-            console.error(`查无此人: ${uid}，不许出牌`);
+            console.error(`查无此人: ${pid}，不许出牌`);
         }
         console.log(table.cards);
     };
@@ -156,14 +156,69 @@ class sexyDealer {
     };
 }
 
-function parse(str) {
+function getDigit(str) {
     return parseInt(str.replace(/\w/, ""), 10);
+}
+function getCardType(str) {
+    return str.slice(0, 1);
+}
+function wordToPic(str) {
+    const type = getCardType(str);
+    const digit = getDigit(str);
+
+    let picStr = "";
+
+    switch (type) {
+        case 'A':
+            picStr = "♥";
+            break;
+        case 'B':
+            picStr = "♠";
+            break;
+        case 'C':
+            picStr = "♣";
+            break;
+        case 'D':
+            picStr = "♦";
+            break;
+    }
+
+    switch (digit) {
+        case 1:
+            if (type === "X") {
+                picStr = "☆";
+            } else {
+                picStr += "A";
+            }
+            break;
+        case 2:
+            if (type === "X") {
+                picStr = "★";
+            } else {
+                picStr += 2;
+            }
+            break;
+        case 11:
+            picStr += "J";
+            break;
+        case 12:
+            picStr += "Q";
+            break;
+        case 13:
+            picStr += "K";
+            break;
+        default:
+            picStr += digit;
+    }
+
+    return picStr;
 }
 
 class Player {
     id = 0;
     name = "";
     cards = [];
+    cardsTemp = [];
 
     constructor(id, name, dealer) {
         this.id = id;
@@ -173,12 +228,79 @@ class Player {
     }
 
 
-    showInfo = () => console.log(`${this.id}: ${this.name}`);
-    showCards = () => console.log(`${this.name}当前的余牌: `, this.cards);
+    handleCardClick = (index) => {
+        const cards = document.querySelectorAll(".card");
+
+        if (cards[index].getAttribute("selected") === "true") {
+            const card = this.cards[index];
+
+            let i = 0;
+            let status = true;
+
+            while (status && i < this.cardsTemp.length) {
+                if (card === this.cardsTemp[i]) {
+                    status = false;
+                    this.cardsTemp.splice(i, 1);
+                }
+
+                i += 1;
+            }
+
+            cards[index].setAttribute("selected", "false");
+            cards[index].setAttribute("class", "card");
+        }
+         else {
+            this.cardsTemp.push(this.cards[index]);
+            cards[index].setAttribute("selected", "true");
+            cards[index].setAttribute("class", "card selected");
+        }
+
+        const statementSelector = document.querySelector("#statementSelector");
+        if (this.cardsTemp.length > 0) {
+            statementSelector.style.display = "block";
+        } else {
+            statementSelector.style.display = "none";
+        }
+    };
+    showInfo = () => {
+        const userInfo = document.querySelector("#userInfo");
+
+        userInfo.innerText = `编号: ${this.id} 用户名: ${this.name}`;
+    };
+    showCards = () => {
+        const myCardStage = document.querySelector('#myCards');
+        myCardStage.innerHTML = "";
+
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = document.createElement('div');
+            card.innerText = wordToPic(this.cards[i]);
+            card.setAttribute("class", "card");
+            card.setAttribute("selected", "false");
+            card.onclick = () => this.handleCardClick(i);
+
+            let color = "";
+            switch (getCardType(this.cards[i])) {
+                case 'A':
+                case 'C':
+                    color = "#f00";
+                    break;
+                case 'B':
+                case 'D':
+                    color = "#000";
+                    break;
+                case 'X':
+                    color = "#5347ff";
+                    break;
+            }
+            card.style.color = color;
+
+            myCardStage.appendChild(card);
+        }
+    };
     getCards = (dealer) => {
         this.cards = dealer.deal();
-        this.cards.sort((a, b) => parse(a)-parse(b));
-        this.showCards();
+        this.cards.sort((a, b) => getDigit(a)-getDigit(b));
+        // this.showCards();
     };
     play = (fact, statement, dealer) => {
         let status = false;
