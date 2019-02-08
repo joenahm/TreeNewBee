@@ -8,6 +8,7 @@ class sexyDealer {
     leftAmount = 0;
     userList = [];
     lastPlayerId = null;
+    nextId = 1;
     isTrue = true;
     passAmount = 0;
 
@@ -43,14 +44,43 @@ class sexyDealer {
             randomEnd -= 1;
         }
     }
+    generateNextId(pid) {
+        let status = true;
+        let i = 0;
+        while (status && i < this.userList.length) {
+            if (pid === this.userList[i].id) {
+                status = false;
+
+                if (i+=1 >= this.userList.length) {
+                    this.nextId = this.userList[0].id;
+                } else {
+                    this.nextId = this.userList[i+1].id;
+                }
+
+            } else {
+                i += 1;
+            }
+        }
+    }
+    notify(content) {
+        const notification = document.querySelector('#notification');
+        notification.children[0].innerHTML = content;
+        notification.style.display = "flex";
+    }
 
     showCards = () => console.log(`荷官手中的余牌: `, table.cards);
     addUser = (player) => {
         this.userList.push(player);
     };
+    canIPlay = (pid) => {
+        if (pid === this.nextId) {
+            return true;
+        } else {
+            return false;
+        }
+    };
     handlePlay = (pid, fact, statement) => {
-        console.log(table.cards);
-
+        const count = fact.length;
         let userName = "";
         let status = false;
         for (let i = 0; i < this.userList.length; i+=1) {
@@ -75,10 +105,13 @@ class sexyDealer {
                     this.isTrue = false;
                 }
             }
+
+            this.notify(`${userName}： ${count}张${digitToWord(statement)}`);
+
+            this.generateNextId(pid);
         } else {
             console.error(`查无此人: ${pid}，不许出牌`);
         }
-        console.log(table.cards);
     };
     handleChallenge = (pid) => {
         let status = false;
@@ -99,7 +132,7 @@ class sexyDealer {
 
             for (let i = 0; i < this.userList.length; i+=1) {
                 if (this.userList[i].id === id) {
-                    console.log(`本轮，${this.userList[i].name}负，桌上的牌全归他！`);
+                    this.notify(`本轮，${this.userList[i].name}负，桌上的牌全归他！`);
                     while (table.cards.length > 0) {
                         this.userList[i].cards.push(table.cards.pop());
                     }
@@ -107,6 +140,8 @@ class sexyDealer {
             }
 
             this.lastPlayerId = null;
+
+            this.generateNextId(pid);
         } else {
             console.error("质疑者身份非法，质疑无效");
         }
@@ -127,11 +162,13 @@ class sexyDealer {
             console.log(`${name}选择Pass`);
 
             if (this.passAmount >= this.userList.length-1) {
-                console.log("所有用户均选择Pass，桌上的牌将清空");
+                this.notify("所有用户均选择Pass，桌上的牌将清空");
                 while (table.cards.length > 0) {
                     table.cards.pop();
                 }
             }
+
+            this.generateNextId(pid);
         } else {
             console.error("不允许当前用户Pass");
         }
@@ -162,6 +199,20 @@ function getDigit(str) {
 function getCardType(str) {
     return str.slice(0, 1);
 }
+function digitToWord(digit) {
+    switch (digit) {
+        case "1":
+            return "A";
+        case "11":
+            return "J";
+        case "12":
+            return "Q";
+        case "13":
+            return "K";
+        default:
+            return digit;
+    }
+}
 function wordToPic(str) {
     const type = getCardType(str);
     const digit = getDigit(str);
@@ -183,32 +234,14 @@ function wordToPic(str) {
             break;
     }
 
-    switch (digit) {
-        case 1:
-            if (type === "X") {
-                picStr = "☆";
-            } else {
-                picStr += "A";
-            }
-            break;
-        case 2:
-            if (type === "X") {
-                picStr = "★";
-            } else {
-                picStr += 2;
-            }
-            break;
-        case 11:
-            picStr += "J";
-            break;
-        case 12:
-            picStr += "Q";
-            break;
-        case 13:
-            picStr += "K";
-            break;
-        default:
-            picStr += digit;
+    if (type === "X") {
+        if (digit === 1) {
+            picStr = "☆";
+        } else {
+            picStr = "★";
+        }
+    } else {
+        picStr += digitToWord(`${digit}`);
     }
 
     return picStr;
@@ -300,36 +333,51 @@ class Player {
     getCards = (dealer) => {
         this.cards = dealer.deal();
         this.cards.sort((a, b) => getDigit(a)-getDigit(b));
-        // this.showCards();
     };
     play = (fact, statement, dealer) => {
-        let status = false;
-        let cards = [];
+        if (dealer.canIPlay(this.id)) {
+            let status = false;
+            let cards = [];
 
-        for (let j = 0; j < fact.length; j+=1) {
-            let i = 0;
-            while (i < this.cards.length) {
-                if (fact[j] === this.cards[i]) {
-                    status = true;
-                    cards.push(this.cards.splice(i, 1)[0]);
+            for (let j = 0; j < fact.length; j+=1) {
+                let i = 0;
+                while (i < this.cards.length) {
+                    if (fact[j] === this.cards[i]) {
+                        status = true;
+                        cards.push(this.cards.splice(i, 1)[0]);
+                    }
+
+                    i += 1;
                 }
-
-                i += 1;
             }
-        }
 
-        if (status) {
-            dealer.handlePlay(this.id, cards, statement);
-            this.showCards();
+            if (status) {
+                dealer.handlePlay(this.id, cards, statement);
+                this.showCards();
+
+                while (this.cardsTemp.length > 0) {
+                    this.cardsTemp.pop();
+                }
+            } else {
+                console.error("出牌无效！")
+            }
         } else {
-            console.error("出牌无效！")
+            alert("还没轮到你！");
         }
     };
     challenge = (dealer) => {
-        dealer.handleChallenge(this.id);
-        this.showCards();
+        if (dealer.canIPlay(this.id)) {
+            dealer.handleChallenge(this.id);
+            this.showCards();
+        } else {
+            alert("还没有轮到你！");
+        }
     };
     pass = (dealer) => {
-        dealer.handlePass(this.id);
+        if (dealer.canIPlay(this.id)) {
+            dealer.handlePass(this.id);
+        } else {
+            alert("还没有轮到你！");
+        }
     };
 }

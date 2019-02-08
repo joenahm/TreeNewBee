@@ -10,20 +10,53 @@
             bottom: 0;
         }
         #statementSelector {
-            width: 250px;
+            width: 300px;
             padding: 10px;
             margin-top: 30px;
             border: 1px #ccc solid;
             border-radius: 10px;
         }
+        #statementSelector ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+        }
         #statementSelector ul li {
             cursor: pointer;
             margin: 5px;
         }
-        #statementSelector ul li:hover {
+        #statementSelector ul li:hover, .statementSelected {
             font-weight: bold;
             text-decoration: underline;
             background: #f5f5f5;
+        }
+        #notification {
+            width: 50%;
+            top: 130px;
+            margin-left: 25%;
+            display: none;
+            position: fixed;
+            justify-content: center;
+        }
+        #notification div {
+            width: 200px;
+            text-align: center;
+            border: 1px #ccc solid;
+            border-radius: 10px;
+            padding: 10px;
+            color: crimson;
+            font-weight: bold;
+        }
+        #btnWrapper {
+            /*display: none;*/
+            width: 105px !important;
+            border: none !important;
+        }
+        button {
+            width: 50px;
+            height: 30px;
+            border-radius: 4px;
+            border: none;
         }
         .card {
             width: 50px;
@@ -67,13 +100,61 @@
             <li>J</li>
             <li>Q</li>
             <li>K</li>
-            <li>JOKER</li>
         </ul>
-        <button style="display: none">出牌</button>
+        <button style="display: none" id="submit">出牌</button>
+    </div>
+
+    <div id="notification">
+        <!--这里显示提示-->
+        <div>
+        </div>
+        <div id="btnWrapper">
+            <button id="challengeBtn">质疑</button>
+            <button id="passBtn">Pass</button>
+        </div>
     </div>
 </body>
 <script src="main.js"></script>
 <script>
+    function unselectAll() {
+        for (let j = 0; j < statements.length; j+=1) {
+            statements[j].setAttribute("class", "");
+        }
+    }
+
+    let statement = "";
+    const statements = document.querySelectorAll('#statementSelector li');
+    for (let i = 0; i < statements.length; i+=1) {
+        statements[i].onclick = e => {
+            statement = `${i+1}`;
+            if (statement !== "") {
+                submitBtn.style.display = "block";
+            } else {
+                submitBtn.style.display = "none";
+            }
+
+            unselectAll();
+
+            e.target.setAttribute("class", "statementSelected");
+        }
+    }
+
+    const submitBtn = document.querySelector('#submit');
+    submitBtn.onclick = () => {
+        console
+        if (p1.cardsTemp.length > 0 &&
+            statement !== "") {
+
+            p1.play(p1.cardsTemp, statement, dealer);
+
+            statement = "";
+            document.querySelector('#statementSelector').style.display = "none";
+            unselectAll();
+        }
+
+        submitBtn.style.display = "none";
+    };
+
     const dealer = new sexyDealer(2);
 
     const p1 = new Player(1, "老狗", dealer);
@@ -83,5 +164,14 @@
 
     const p2 = new Player(2, "教主", dealer);
     p2.getCards(dealer);
+
+    const challengeBtn = document.querySelector('#challengeBtn');
+    const passBtn = document.querySelector('#passBtn');
+    challengeBtn.onclick = () => {
+        p2.challenge(dealer);
+    };
+    passBtn.onclick = () => {
+        p2.pass(dealer);
+    };
 </script>
 </html>
