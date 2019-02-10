@@ -9,7 +9,18 @@
 #### 听：
 - ` accessible: 询问是否能进房间 data: { accessible: true } `
 - ` room_info: 询问进入房间后，我的id和大家的名字 data: { id: 1, other_players: ['小红', '小刚' ] } `
-- ` game_begins: 游戏开始了 `
+- `game_begins: 游戏开始了,返回我的牌，和其他人的牌数 `
+```
+ data: {
+    cards: ["A1", "A2"],
+    other_players: [
+        {
+            name: "小明",
+            card_amt: 13,
+        },
+    ],
+ } 
+```
 
 #### 说：
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
