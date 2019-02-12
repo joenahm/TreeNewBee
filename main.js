@@ -15,6 +15,7 @@ class sexyDealer {
     constructor(playerAmount) {
         this.leftAmount = playerAmount;
         this.generateCards();
+        this.shuffle();
     }
 
     generateCards() {
@@ -28,8 +29,6 @@ class sexyDealer {
         }
         table.cards.push("X1");
         table.cards.push("X2");
-
-        this.showCards();
     };
     shuffle() {
         let randomEnd = table.cards.length;
@@ -61,11 +60,6 @@ class sexyDealer {
                 i += 1;
             }
         }
-    }
-    notify(content) {
-        const notification = document.querySelector('#notification');
-        notification.children[0].innerHTML = content;
-        notification.style.display = "flex";
     }
 
     showCards = () => console.log(`荷官手中的余牌: `, table.cards);
@@ -174,8 +168,6 @@ class sexyDealer {
         }
     };
     deal = () => {
-        this.shuffle();
-
         let onePlayerAmount = Math.ceil(table.cards.length / this.leftAmount);
         while (table.cards.length > 0 &&
             table.cards.length < onePlayerAmount) {
@@ -253,11 +245,9 @@ class Player {
     cards = [];
     cardsTemp = [];
 
-    constructor(id, name, dealer) {
+    constructor(id, name) {
         this.id = id;
         this.name = name;
-
-        dealer.addUser(this);
     }
 
 
@@ -330,12 +320,12 @@ class Player {
             myCardStage.appendChild(card);
         }
     };
-    getCards = (dealer) => {
-        this.cards = dealer.deal();
+    getCards = (cards) => {
+        this.cards = cards;
         this.cards.sort((a, b) => getDigit(a)-getDigit(b));
     };
-    play = (fact, statement, dealer) => {
-        if (dealer.canIPlay(this.id)) {
+    play = (fact, statement, status) => {
+        if (status) {
             let status = false;
             let cards = [];
 

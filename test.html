@@ -74,7 +74,7 @@
     </style>
 </head>
 <body>
-    <h3>树新蜂纸牌游戏</h3>
+    <h3>树新蜂纸牌游戏 WebSocket 调试阶段</h3>
     <div id="myCards">
         <!--牌将会作为子节点出现这这里-->
     </div>
@@ -82,6 +82,7 @@
     <div id="userInfo">
         <!--玩家信息将会出现在这里-->
     </div>
+    <button id="getReadyBtn">准备</button>
 
     <div id="statementSelector" style="display: none">
         <!--从这里选择声称出了什么牌-->
@@ -122,56 +123,161 @@
         }
     }
 
-    let statement = "";
-    const statements = document.querySelectorAll('#statementSelector li');
-    for (let i = 0; i < statements.length; i+=1) {
-        statements[i].onclick = e => {
-            statement = `${i+1}`;
-            if (statement !== "") {
-                submitBtn.style.display = "block";
-            } else {
-                submitBtn.style.display = "none";
-            }
+    // let statement = "";
+    // const statements = document.querySelectorAll('#statementSelector li');
+    // for (let i = 0; i < statements.length; i+=1) {
+    //     statements[i].onclick = e => {
+    //         statement = `${i+1}`;
+    //         if (statement !== "") {
+    //             submitBtn.style.display = "block";
+    //         } else {
+    //             submitBtn.style.display = "none";
+    //         }
+    //
+    //         unselectAll();
+    //
+    //         e.target.setAttribute("class", "statementSelected");
+    //     }
+    // }
+    //
+    // const submitBtn = document.querySelector('#submit');
+    // submitBtn.onclick = () => {
+    //     console
+    //     if (p1.cardsTemp.length > 0 &&
+    //         statement !== "") {
+    //
+    //         p1.play(p1.cardsTemp, statement, dealer);
+    //
+    //         statement = "";
+    //         document.querySelector('#statementSelector').style.display = "none";
+    //         unselectAll();
+    //     }
+    //
+    //     submitBtn.style.display = "none";
+    // };
+    //
+    // const dealer = new sexyDealer(2);
+    //
+    // const p = new Player(1, "老狗", dealer);
+    // p.showInfo();
+    // p.getCards(dealer);
+    // p.showCards();
+    //
+    // const challengeBtn = document.querySelector('#challengeBtn');
+    // const passBtn = document.querySelector('#passBtn');
+    // challengeBtn.onclick = () => {
+    //     p.challenge(dealer);
+    // };
+    // passBtn.onclick = () => {
+    //     p.pass(dealer);
+    // };
 
-            unselectAll();
+    const getReadyBtn = document.querySelector('#getReadyBtn');
+    getReadyBtn.onclick = () => {
+        sendReady({ id: player.id });
+    };
 
-            e.target.setAttribute("class", "statementSelected");
+    function notify(content, status=true) {
+        const notification = document.querySelector('#notification');
+
+        notification.children[0].innerHTML = content;
+        notification.style.display = "flex";
+
+        const btnWrapper = document.querySelector('#btnWrapper');
+
+        if (status) {
+            btnWrapper.style.display = "block";
+        } else {
+            btnWrapper.style.display = "none";
         }
+
     }
 
-    const submitBtn = document.querySelector('#submit');
-    submitBtn.onclick = () => {
-        console
-        if (p1.cardsTemp.length > 0 &&
-            statement !== "") {
+    let username = prompt("请输入你的名字:");
+    let player;
+    let otherPlayers = [];
 
-            p1.play(p1.cardsTemp, statement, dealer);
+    const ws = new WebSocket('ws://119.28.89.164:5002/cnb');
+    ws.onmessage = response => {
+        if (response && response.data) {
+            const data = JSON.parse(response.data);
 
-            statement = "";
-            document.querySelector('#statementSelector').style.display = "none";
-            unselectAll();
+            switch (data.type) {
+                case "accessible":
+                    handleAccessible(data);
+                    break;
+                case "room_info":
+                    handleRoomInfo(data);
+                    break;
+                case "game_begins":
+                    handleGameBegins(data);
+                    break;
+            }
+
+        } else {
+            alert("连接服务器失败！");
         }
-
-        submitBtn.style.display = "none";
     };
 
-    const dealer = new sexyDealer(2);
+    function updateOtherPlayers(data) {
+        otherPlayers = data;
+    }
 
-    const p1 = new Player(1, "老狗", dealer);
-    p1.showInfo();
-    p1.getCards(dealer);
-    p1.showCards();
+    function sendEnterRoom(data) {
+        ws.send(JSON.stringify({
+            type: "enter_room",
+            data,
+        }));
+    }
 
-    const p2 = new Player(2, "教主", dealer);
-    p2.getCards(dealer);
+    function sendReady(data) {
+        ws.send(JSON.stringify({
+            type: "ready",
+            data,
+        }));
+    }
 
-    const challengeBtn = document.querySelector('#challengeBtn');
-    const passBtn = document.querySelector('#passBtn');
-    challengeBtn.onclick = () => {
-        p2.challenge(dealer);
-    };
-    passBtn.onclick = () => {
-        p2.pass(dealer);
-    };
+    function sendCanIPlay(data) {
+        ws.send(JSON.stringify({
+            type: "can_i_play",
+            data,
+        }));
+    }
+
+    function sendPlay(data) {
+
+    }
+
+    function handleGameBegins(data) {
+        const { cards, others } = data.data;
+
+        player.getCards(cards);
+        player.showCards();
+
+        updateOtherPlayers(others);
+
+        getReadyBtn.style.display = "none";
+        notify("游戏开始！", false)
+    }
+
+    function handleRoomInfo(data) {
+        const { id, others } = data.data;
+
+        player = new Player(id, username);
+        player.showInfo();
+
+        updateOtherPlayers(others);
+    }
+
+    function handleAccessible(data) {
+        const { accessible } = data.data;
+        if (accessible) {
+            sendEnterRoom({
+               name: username,
+            });
+        } else {
+            alert("你不能进入此房间！");
+        }
+    }
 </script>
 </html>
