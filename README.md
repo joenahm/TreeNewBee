@@ -33,6 +33,7 @@ data: {
  }
 ```
 - ` play_status: 我是不是可以出牌 data: { status: true } `
+- ` play_result: 一次出牌的结果 data: { result: "老狗出了2个A" } `
 
 #### 说：
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
