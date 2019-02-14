@@ -324,36 +324,31 @@ class Player {
         this.cards = cards;
         this.cards.sort((a, b) => getDigit(a)-getDigit(b));
     };
-    play = (fact, statement, status) => {
-        if (status) {
-            let status = false;
-            let cards = [];
+    play = (fact) => {
+        let status = false;
+        let cards = [];
 
-            for (let j = 0; j < fact.length; j+=1) {
-                let i = 0;
-                while (i < this.cards.length) {
-                    if (fact[j] === this.cards[i]) {
-                        status = true;
-                        cards.push(this.cards.splice(i, 1)[0]);
-                    }
-
-                    i += 1;
+        for (let j = 0; j < fact.length; j+=1) {
+            let i = 0;
+            while (i < this.cards.length) {
+                if (fact[j] === this.cards[i]) {
+                    status = true;
+                    cards.push(this.cards.splice(i, 1)[0]);
                 }
-            }
 
-            if (status) {
-                dealer.handlePlay(this.id, cards, statement);
-                this.showCards();
-
-                while (this.cardsTemp.length > 0) {
-                    this.cardsTemp.pop();
-                }
-            } else {
-                console.error("出牌无效！")
+                i += 1;
             }
-        } else {
-            alert("还没轮到你！");
         }
+
+        if (status) {
+            this.showCards();
+
+            while (this.cardsTemp.length > 0) {
+                this.cardsTemp.pop();
+            }
+        }
+
+        return cards;
     };
     challenge = (dealer) => {
         if (dealer.canIPlay(this.id)) {
