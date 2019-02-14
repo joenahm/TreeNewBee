@@ -219,10 +219,10 @@ function wordToPic(str) {
             picStr = "♠";
             break;
         case 'C':
-            picStr = "♣";
+            picStr = "♦";
             break;
         case 'D':
-            picStr = "♦";
+            picStr = "♣";
             break;
     }
 
@@ -324,14 +324,14 @@ class Player {
         this.cards = cards;
         this.cards.sort((a, b) => getDigit(a)-getDigit(b));
     };
-    play = (fact) => {
+    play = () => {
         let status = false;
         let cards = [];
 
-        for (let j = 0; j < fact.length; j+=1) {
+        for (let j = 0; j < this.cardsTemp.length; j+=1) {
             let i = 0;
             while (i < this.cards.length) {
-                if (fact[j] === this.cards[i]) {
+                if (this.cardsTemp[j] === this.cards[i]) {
                     status = true;
                     cards.push(this.cards.splice(i, 1)[0]);
                 }

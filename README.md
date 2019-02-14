@@ -38,3 +38,4 @@ data: {
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
 - ` ready: 准备好了 data: { id: 1 } `
 - ` can_i_play: 我可不可以出牌 data { id: 1 } `
+- ` play: 出牌 data { id: 1, cards: ["A1"], statement: "1" } `
