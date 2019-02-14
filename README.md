@@ -33,10 +33,23 @@ data: {
  }
 ```
 - ` play_status: 我是不是可以出牌 data: { status: true } `
-- ` play_result: 一次出牌的结果 data: { result: "老狗出了2个A" } `
+- ` play_result: 一次出牌的结果 `
+```
+data: {
+    message: "老狗出了2个A",
+    others: [
+        {
+            name: "小明",
+            amounts: 10,
+        },
+    ],
+} 
+```
 
 #### 说：
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
 - ` ready: 准备好了 data: { id: 1 } `
 - ` can_i_play: 我可不可以出牌 data { id: 1 } `
-- ` play: 出牌 data { id: 1, cards: ["A1"], statement: "1" } `
+- ` play: 出牌 data: { id: 1, cards: ["A1"], statement: "1" } `
+- ` challenge: 质疑 data: { id:1 } `
+- ` pass: 过 data: { id:1 } `

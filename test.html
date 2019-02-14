@@ -139,9 +139,18 @@
         }
     }
 
+    function clearPlay() {
+        statement = "";
+        document.querySelector('#statementSelector').style.display = "none";
+        unselectAll();
+        submitBtn.style.display = "none";
+    }
+
     let username = prompt("请输入你的名字:");
     let player;
     let otherPlayers = [];
+
+    let gameMode;
 
     let statement = "";
     const statements = document.querySelectorAll('#statementSelector li');
@@ -161,34 +170,36 @@
     }
 
     const submitBtn = document.querySelector('#submit');
+    const challengeBtn = document.querySelector('#challengeBtn');
+    const passBtn = document.querySelector('#passBtn');
+
     submitBtn.onclick = () => {
         if (player.cardsTemp.length > 0 &&
             statement !== "") {
+
+            gameMode = "play";
 
             sendCanIPlay({
                 id: player.id,
             });
 
-            // player.play(p1.cardsTemp, statement, dealer);
-            //
-            // statement = "";
-            // document.querySelector('#statementSelector').style.display = "none";
-            // unselectAll();
+
         } else {
             alert("出牌错误！");
         }
-
-        // submitBtn.style.display = "none";
     };
-
-    // const challengeBtn = document.querySelector('#challengeBtn');
-    // const passBtn = document.querySelector('#passBtn');
-    // challengeBtn.onclick = () => {
-    //     p.challenge(dealer);
-    // };
-    // passBtn.onclick = () => {
-    //     p.pass(dealer);
-    // };
+    challengeBtn.onclick = () => {
+        gameMode = "challenge";
+        sendCanIPlay({
+            id: player.id,
+        });
+    };
+    passBtn.onclick = () => {
+        gameMode = "pass";
+        sendCanIPlay({
+            id: player.id,
+        });
+    };
 
     const getReadyBtn = document.querySelector('#getReadyBtn');
     getReadyBtn.onclick = () => {
@@ -211,15 +222,16 @@
                 case "game_begins":
                     handleGameBegins(data);
                     break;
+                case "play_status":
+                    handlePlayStatus(data);
+                    break;
+                case "play_result":
+                    handlePlayResult(data);
             }
 
         } else {
             alert("连接服务器失败！");
         }
-    };
-
-    ws.onclose = () => {
-        return JSON.stringify({ id: player.id });
     };
 
     function updateOtherPlayers(data) {
@@ -247,8 +259,64 @@
         }));
     }
 
-    function sendPlay(data) {
+    function sendPlayInfo(data) {
+        ws.send(JSON.stringify({
+            type: "play",
+            data,
+        }));
+    }
 
+    function handlePlayResult(data) {
+        const { result } = data.data;
+
+        notify(result);
+    }
+
+    function handlePlayStatus(data) {
+        let { status } = data.data;
+        status = JSON.parse(status);
+
+        if (status) {
+            switch (gameMode) {
+                case "play":
+                    handlePlay();
+                    break;
+                case "challenge":
+                    handleChallenge();
+                    break;
+                case "pass":
+                    handlePass();
+                    break;
+            }
+        }  else {
+            alert("还没轮到你！");
+        }
+    }
+
+    function handlePass() {
+        ws.send(JSON.stringify({
+            type: "pass",
+            id: player.id,
+        }));
+    }
+
+    function handleChallenge() {
+        ws.send(JSON.stringify({
+            type: "challenge",
+            id: player.id,
+        }));
+    }
+
+    function handlePlay() {
+        const cards = player.play();
+
+        sendPlayInfo({
+            id: player.id,
+            cards,
+            statement,
+        });
+
+        clearPlay();
     }
 
     function handleGameBegins(data) {

@@ -350,19 +350,4 @@ class Player {
 
         return cards;
     };
-    challenge = (dealer) => {
-        if (dealer.canIPlay(this.id)) {
-            dealer.handleChallenge(this.id);
-            this.showCards();
-        } else {
-            alert("还没有轮到你！");
-        }
-    };
-    pass = (dealer) => {
-        if (dealer.canIPlay(this.id)) {
-            dealer.handlePass(this.id);
-        } else {
-            alert("还没有轮到你！");
-        }
-    };
 }
