@@ -30,8 +30,9 @@ data: {
             amount: 13,
         },
     ],
- } 
+ }
 ```
+- ` play_status: 我是不是可以出牌 data: { status: true } `
 
 #### 说：
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
