@@ -45,6 +45,7 @@ data: {
     ],
 } 
 ```
+- ` info: 显示通知类信息 data: { message: "查无此人不许出牌！" }`
 
 #### 说：
 - ` enter_room: 进入房间 data: { name: "我的名字" } `
