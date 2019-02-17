@@ -50,7 +50,7 @@ class sexyDealer {
             if (pid === this.userList[i].id) {
                 status = false;
 
-                if (i+=1 >= this.userList.length) {
+                if (i+1 >= this.userList.length) {
                     this.nextId = this.userList[0].id;
                 } else {
                     this.nextId = this.userList[i+1].id;
