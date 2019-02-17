@@ -37,8 +37,9 @@ data: {
 ```
 data: {
     message: "老狗出了2个A",
+    id: 1(出牌者的),
     others: [
-        {
+        {(出牌者的),
             name: "小明",
             amounts: 10,
         },
